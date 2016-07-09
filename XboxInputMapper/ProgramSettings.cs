@@ -1,0 +1,55 @@
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Runtime.Serialization.Formatters.Binary;
+using System.Windows;
+
+namespace XboxInputMapper
+{
+	[Serializable]
+	class ProgramSettings
+	{
+		public string ApplicationTitle = "BlueStacks App Player";
+		public bool IsVisualizeTouch = true;
+
+		public string BackgroundImage;
+
+		public Point? AxisCenter;
+		public int AxisRadius = 120;
+
+		public List<Point>[] ButtonPositions = new List<Point>[InputMapperLibrary.ButtonCount];
+		public List<Point> LeftTriggerPositions = new List<Point>();
+		public List<Point> RightTriggerPositions = new List<Point>();
+
+		public static ProgramSettings Load()
+		{
+			try {
+				using (var inputFile = new FileStream("InputSettings.bin", FileMode.Open, FileAccess.Read, FileShare.Read)) {
+					return new BinaryFormatter().Deserialize(inputFile) as ProgramSettings;
+				}
+			}
+			catch (IOException) {
+			}
+
+			var newSettings = new ProgramSettings();
+			for (int iCnt = 0; iCnt < InputMapperLibrary.ButtonCount; ++iCnt) {
+				newSettings.ButtonPositions[iCnt] = new List<Point>();
+			}
+			return newSettings;
+		}
+
+		public bool Save()
+		{
+			try {
+				using (var outputFile = new FileStream("InputSettings.bin", FileMode.Create, FileAccess.Write, FileShare.Read)) {
+					new BinaryFormatter().Serialize(outputFile, this);
+				}
+			}
+			catch (IOException) {
+				return false;
+			}
+
+			return true;
+		}
+	}
+}

@@ -1,0 +1,22 @@
+﻿<Window x:Class="XboxInputMapper.MainWindow"
+		xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+		xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+		xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+		xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+		mc:Ignorable="d"
+		Title="Xbox Input Mapper" Width="275" Height="175" WindowStartupLocation="CenterScreen" ResizeMode="CanMinimize" FontFamily="Segoe UI" FontSize="12" Icon="Program.ico"
+		Initialized="MainWindow_Initialized" Closing="MainWindow_Closing" StateChanged="MainWindow_StateChanged">
+	<Grid>
+		<Grid.RowDefinitions>
+			<RowDefinition Height="*"/>
+			<RowDefinition Height="Auto"/>
+		</Grid.RowDefinitions>
+		<StackPanel Orientation="Vertical" Grid.RowSpan="2">
+			<TextBlock HorizontalAlignment="Left" Margin="10,10,0,2" Text="Application Title"/>
+			<TextBox x:Name="textAppTitle" HorizontalAlignment="Stretch" Height="23" Margin="10,2,10,5" Background="Red" VerticalContentAlignment="Center" TextChanged="TextAppTitle_TextChanged" />
+			<CheckBox x:Name="checkTouchVisible" HorizontalAlignment="Left" Margin="10,5,0,3" Content="Visualize Touch" Checked="CheckTouchVisible_CheckedChanged" Unchecked="CheckTouchVisible_CheckedChanged"/>
+		</StackPanel>
+		
+		<Button Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="10" Width="120" Height="23" Content="Touch Profile" Click="Button_Click"/>
+	</Grid>
+</Window>
