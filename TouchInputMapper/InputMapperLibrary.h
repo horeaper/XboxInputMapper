@@ -17,8 +17,7 @@ namespace XboxInputMapper
 		static const int ButtonCount = 14;
 		static const int LeftTriggerButtonId = 14;
 		static const int RightTriggerButtonId = 15;
-		static const int MaxTouchCount = 8;
-		static const int ContactAreaRadius = 10;
+		static const int MaxTouchCount = 16;
 
 		void SetTouchVisualize(bool isVisualizeTouch);
 
@@ -30,7 +29,7 @@ namespace XboxInputMapper
 		void ButtonUpdate(int buttonId, List<Point> ^pointArray, Point pointOffset);
 		void ButtonUp(int buttonId);
 
-		bool SendTouchData();
+		void SendTouchData();
 
 	private:
 		int FindAvailableIndex();

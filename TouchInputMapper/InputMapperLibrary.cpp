@@ -14,7 +14,6 @@ namespace XboxInputMapper
 			m_pimpl->contact[cnt].pointerInfo.pointerFlags = POINTER_FLAG_NONE;
 			m_pimpl->contact[cnt].pointerInfo.pointerType = PT_TOUCH;
 			m_pimpl->contact[cnt].pointerInfo.pointerId = cnt;
-			m_pimpl->contact[cnt].touchMask = TOUCH_MASK_CONTACTAREA;
 		}
 	}
 
@@ -78,7 +77,7 @@ namespace XboxInputMapper
 		m_pimpl->ButtonTouchId[buttonId].clear();
 	}
 
-	bool InputMapperLibrary::SendTouchData()
+	void InputMapperLibrary::SendTouchData()
 	{
 		vector<POINTER_TOUCH_INFO> injectArray;
 		for (int cnt = 0; cnt < MaxTouchCount; ++cnt) {
@@ -87,16 +86,13 @@ namespace XboxInputMapper
 			}
 		}
 		if (injectArray.size() > 0) {
-			bool result = InjectTouchInput(injectArray.size(), &injectArray.front()) ? true : false;
+			InjectTouchInput(injectArray.size(), &injectArray.front());
+
 			for (int cnt = 0; cnt < MaxTouchCount; ++cnt) {
 				if (m_pimpl->contact[cnt].pointerInfo.pointerFlags == POINTER_FLAG_UP) {
 					m_pimpl->contact[cnt].pointerInfo.pointerFlags = POINTER_FLAG_NONE;
 				}
 			}
-			return result;
-		}
-		else {
-			return true;
 		}
 	}
 	
@@ -119,10 +115,6 @@ namespace XboxInputMapper
 		m_pimpl->contact[index].pointerInfo.pointerFlags = POINTER_FLAG_DOWN | POINTER_FLAG_INRANGE | POINTER_FLAG_INCONTACT;
 		m_pimpl->contact[index].pointerInfo.ptPixelLocation.x = x;
 		m_pimpl->contact[index].pointerInfo.ptPixelLocation.y = y;
-		m_pimpl->contact[index].rcContact.left = x - ContactAreaRadius;
-		m_pimpl->contact[index].rcContact.top = y - ContactAreaRadius;
-		m_pimpl->contact[index].rcContact.right = x + ContactAreaRadius;
-		m_pimpl->contact[index].rcContact.bottom = y + ContactAreaRadius;
 	}
 
 	void InputMapperLibrary::PointerUpdate(int index, int x, int y)
@@ -130,10 +122,6 @@ namespace XboxInputMapper
 		m_pimpl->contact[index].pointerInfo.pointerFlags = POINTER_FLAG_UPDATE | POINTER_FLAG_INRANGE | POINTER_FLAG_INCONTACT;
 		m_pimpl->contact[index].pointerInfo.ptPixelLocation.x = x;
 		m_pimpl->contact[index].pointerInfo.ptPixelLocation.y = y;
-		m_pimpl->contact[index].rcContact.left = x - ContactAreaRadius;
-		m_pimpl->contact[index].rcContact.top = y - ContactAreaRadius;
-		m_pimpl->contact[index].rcContact.right = x + ContactAreaRadius;
-		m_pimpl->contact[index].rcContact.bottom = y + ContactAreaRadius;
 	}
 
 	void InputMapperLibrary::PointerUp(int index)
