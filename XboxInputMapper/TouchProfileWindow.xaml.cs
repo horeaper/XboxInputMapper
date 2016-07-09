@@ -18,7 +18,7 @@ namespace XboxInputMapper
 	public partial class TouchProfileWindow : Window
 	{
 		AxisControl m_axisControl;
-		List<ButtonControl>[] m_buttonControls = new List<ButtonControl>[InputMapperLibrary.ButtonCount];
+		List<ButtonControl>[] m_buttonControls = new List<ButtonControl>[Constants.ButtonCount];
 		List<ButtonControl> m_leftTriggerControls = new List<ButtonControl>();
 		List<ButtonControl> m_rightTriggerControls = new List<ButtonControl>();
 
@@ -29,7 +29,7 @@ namespace XboxInputMapper
 		public TouchProfileWindow()
 		{
 			InitializeComponent();
-			for (int index = 0; index < InputMapperLibrary.ButtonCount; ++index) {
+			for (int index = 0; index < Constants.ButtonCount; ++index) {
 				m_buttonControls[index] = new List<ButtonControl>();
 			}
 
@@ -41,7 +41,7 @@ namespace XboxInputMapper
 				AddAxisControlToCanvas();
 				m_axisControl.Location = MainWindow.Settings.AxisCenter.Value;
 			}
-			for (int index = 0; index < InputMapperLibrary.ButtonCount; ++index) {
+			for (int index = 0; index < Constants.ButtonCount; ++index) {
 				foreach (var point in MainWindow.Settings.ButtonPositions[index]) {
 					AddButtonControlToCanvas(new ButtonControl(Constants.ButtonDisplayName[index], point), m_buttonControls[index]);
 				}
@@ -159,7 +159,7 @@ namespace XboxInputMapper
 				MainWindow.Settings.AxisCenter = m_axisControl.Location;
 				MainWindow.Settings.AxisRadius = m_axisControl.AxisRadius;
 			}
-			for (int index = 0; index < InputMapperLibrary.ButtonCount; ++index) {
+			for (int index = 0; index < Constants.ButtonCount; ++index) {
 				MainWindow.Settings.ButtonPositions[index].Clear();
 				MainWindow.Settings.ButtonPositions[index].AddRange(m_buttonControls[index].Select(control => control.Location));
 			}

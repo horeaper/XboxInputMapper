@@ -11,13 +11,14 @@ namespace XboxInputMapper
 	{
 		public string ApplicationTitle = "BlueStacks App Player";
 		public bool IsVisualizeTouch = true;
+		public bool IsTriggerHappy = false;
 
 		public string BackgroundImage;
 
 		public Point? AxisCenter;
 		public int AxisRadius = 120;
 
-		public List<Point>[] ButtonPositions = new List<Point>[InputMapperLibrary.ButtonCount];
+		public List<Point>[] ButtonPositions = new List<Point>[Constants.ButtonCount];
 		public List<Point> LeftTriggerPositions = new List<Point>();
 		public List<Point> RightTriggerPositions = new List<Point>();
 
@@ -32,8 +33,8 @@ namespace XboxInputMapper
 			}
 
 			var newSettings = new ProgramSettings();
-			for (int iCnt = 0; iCnt < InputMapperLibrary.ButtonCount; ++iCnt) {
-				newSettings.ButtonPositions[iCnt] = new List<Point>();
+			for (int cnt = 0; cnt < Constants.ButtonCount; ++cnt) {
+				newSettings.ButtonPositions[cnt] = new List<Point>();
 			}
 			return newSettings;
 		}

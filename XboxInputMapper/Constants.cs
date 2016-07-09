@@ -10,6 +10,8 @@ namespace XboxInputMapper
 {
 	static class Constants
 	{
+		public const int ButtonCount = 14;
+
 		public static readonly XInput.GamePadButton[] ButtonValue = {
 			XInput.GamePadButton.DPadUp,
 			XInput.GamePadButton.DPadDown,

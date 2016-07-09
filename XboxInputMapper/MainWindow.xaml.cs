@@ -5,6 +5,7 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Threading;
 using XboxInputMapper.Native;
+using System.Collections.Generic;
 
 namespace XboxInputMapper
 {
@@ -18,13 +19,16 @@ namespace XboxInputMapper
 		InputMapperLibrary m_inputLibrary;
 		IntPtr m_gameWindow = IntPtr.Zero;
 		DispatcherTimer m_timer = new DispatcherTimer();
-
 		System.Windows.Forms.NotifyIcon m_notifyIcon;
 
 		const int ThumbDeadzone = short.MaxValue / 2;
 		const int TriggerDeadzone = byte.MaxValue / 4;
-		bool m_isDirectionInEffect;
 		XInput.Gamepad m_previousGamepad;
+		bool m_isDirectionInEffect;
+		bool m_isLeftTriggerDown;
+		bool m_isRightTriggerDown;
+
+		Dictionary<Point, int> m_posMap = new Dictionary<Point, int>();
 
 		public MainWindow()
 		{
@@ -34,6 +38,8 @@ namespace XboxInputMapper
 			m_inputLibrary = new InputMapperLibrary(Settings.IsVisualizeTouch);
 			textAppTitle.Text = Settings.ApplicationTitle;
 			checkTouchVisible.IsChecked = Settings.IsVisualizeTouch;
+			checkTriggerHappy.IsChecked = Settings.IsTriggerHappy;
+			RefreshPositionIndex();
 
 			m_notifyIcon = new System.Windows.Forms.NotifyIcon();
 			m_notifyIcon.Icon = Properties.Resources.Program;
@@ -44,6 +50,32 @@ namespace XboxInputMapper
 				WindowState = WindowState.Normal;
 				m_notifyIcon.Visible = false;
 			};
+		}
+
+		void RefreshPositionIndex()
+		{
+			m_posMap.Clear();
+			int index = 0;
+			foreach (var positions in Settings.ButtonPositions) {
+				foreach (var point in positions) {
+					m_posMap.Add(point, index++);
+				}
+			}
+			foreach (var point in Settings.LeftTriggerPositions) {
+				m_posMap.Add(point, index++);
+			}
+			foreach (var point in Settings.RightTriggerPositions) {
+				m_posMap.Add(point, index++);
+			}
+		}
+
+		void Reset()
+		{
+			m_previousGamepad = new XInput.Gamepad();
+			m_isDirectionInEffect = false;
+			m_isLeftTriggerDown = false;
+			m_isRightTriggerDown = false;
+			m_inputLibrary.SetTouchVisualize(Settings.IsVisualizeTouch);
 		}
 
 		private void MainWindow_Initialized(object sender, EventArgs e)
@@ -64,7 +96,6 @@ namespace XboxInputMapper
 			}
 
 			m_timer.Stop();
-			m_inputLibrary.Dispose();
 		}
 
 		private void MainWindow_StateChanged(object sender, EventArgs e)
@@ -85,14 +116,26 @@ namespace XboxInputMapper
 		private void CheckTouchVisible_CheckedChanged(object sender, RoutedEventArgs e)
 		{
 			Settings.IsVisualizeTouch = checkTouchVisible.IsChecked == true;
-			m_inputLibrary.SetTouchVisualize(Settings.IsVisualizeTouch);
+			Reset();
 		}
 
-		private void Button_Click(object sender, RoutedEventArgs e)
+		void CheckTriggerHappy_CheckedChanged(object sender, RoutedEventArgs e)
+		{
+			Settings.IsTriggerHappy = checkTriggerHappy.IsChecked == true;
+			Reset();
+		}
+
+		private void ResetButton_Click(object sender, RoutedEventArgs e)
+		{
+			Reset();
+		}
+
+		private void ProfileButton_Click(object sender, RoutedEventArgs e)
 		{
 			var profileWindow = new TouchProfileWindow();
 			profileWindow.Owner = this;
 			profileWindow.ShowDialog();
+			RefreshPositionIndex();
 		}
 
 		private void timer_Tick(object sender, EventArgs e)
@@ -118,7 +161,7 @@ namespace XboxInputMapper
 			if (XInput.GetState(0, out state) == XInput.ErrorSuccess) {
 				Imports.RECT screenRect;
 				Imports.GetWindowRect(m_gameWindow, out screenRect);
-				var windowPosition = new Point(screenRect.Left, screenRect.Top);
+				var windowOffset = new Vector(screenRect.Left, screenRect.Top);
 
 				//Axis
 				if (Settings.AxisCenter.HasValue && Settings.AxisRadius > 0) {
@@ -133,7 +176,7 @@ namespace XboxInputMapper
 					}
 					if (direction.X == 0 && direction.Y == 0) {	//No direction
 						if (m_isDirectionInEffect) {
-							m_inputLibrary.DirectionUp();
+							m_inputLibrary.TouchUp(InputMapperLibrary.MaxTouchCount - 1);
 							m_isDirectionInEffect = false;
 						}
 					}
@@ -141,13 +184,13 @@ namespace XboxInputMapper
 						direction.Normalize();
 						direction *= Settings.AxisRadius;
 
-						var point = new Point(windowPosition.X + center.X + direction.X, windowPosition.Y + center.Y - direction.Y);
+						var point = new Point(windowOffset.X + center.X + direction.X, windowOffset.Y + center.Y - direction.Y);
 						if (!m_isDirectionInEffect) {
-							m_inputLibrary.DirectionDown(point);
+							m_inputLibrary.TouchDown(InputMapperLibrary.MaxTouchCount - 1, point);
 							m_isDirectionInEffect = true;
 						}
 						else {
-							m_inputLibrary.DirectionUpdate(point);
+							m_inputLibrary.TouchUpdate(InputMapperLibrary.MaxTouchCount - 1, point);
 						}
 					}
 				}
@@ -160,46 +203,137 @@ namespace XboxInputMapper
 					bool isButtonInEffect = m_previousGamepad.Buttons.HasFlag(value);
 					if (!gamepad.Buttons.HasFlag(value)) {	//No button
 						if (isButtonInEffect) {
-							m_inputLibrary.ButtonUp(buttonId);
+							foreach (var point in Settings.ButtonPositions[buttonId]) {
+								m_inputLibrary.TouchUp(m_posMap[point]);
+							}
 						}
 					}
 					else {
 						if (!isButtonInEffect) {
-							m_inputLibrary.ButtonDown(buttonId, Settings.ButtonPositions[buttonId], windowPosition);
+							foreach (var point in Settings.ButtonPositions[buttonId]) {
+								m_inputLibrary.TouchDown(m_posMap[point], point + windowOffset);
+							}
 						}
 						else {
-							m_inputLibrary.ButtonUpdate(buttonId, Settings.ButtonPositions[buttonId], windowPosition);
+							foreach (var point in Settings.ButtonPositions[buttonId]) {
+								m_inputLibrary.TouchUpdate(m_posMap[point], point + windowOffset);
+							}
 						}
 					}
 				}
 
-				//Trigger
-				bool isLeftTriggerInEffect = m_previousGamepad.LeftTrigger > TriggerDeadzone;
-				if (gamepad.LeftTrigger <= TriggerDeadzone) {	//No trigger
-					if (isLeftTriggerInEffect) {
-						m_inputLibrary.ButtonUp(InputMapperLibrary.LeftTriggerButtonId);
+				if (checkTriggerHappy.IsChecked == true) {
+					//Left trigger
+					bool isLeftTriggerInEffect = m_previousGamepad.LeftTrigger > TriggerDeadzone;
+					if (gamepad.LeftTrigger <= TriggerDeadzone) {   //No trigger
+						if (isLeftTriggerInEffect) {
+							if (m_isLeftTriggerDown) {
+								foreach (var point in Settings.LeftTriggerPositions) {
+									m_inputLibrary.TouchUp(m_posMap[point]);
+								}
+							}
+							m_isLeftTriggerDown = false;
+						}
+					}
+					else {
+						if (!isLeftTriggerInEffect) {
+							foreach (var point in Settings.LeftTriggerPositions) {
+								m_inputLibrary.TouchDown(m_posMap[point], point + windowOffset);
+							}
+							m_isLeftTriggerDown = true;
+						}
+						else {
+							if (m_isLeftTriggerDown) {
+								foreach (var point in Settings.LeftTriggerPositions) {
+									m_inputLibrary.TouchUp(m_posMap[point]);
+								}
+							}
+							else {
+								foreach (var point in Settings.LeftTriggerPositions) {
+									m_inputLibrary.TouchDown(m_posMap[point], point + windowOffset);
+								}
+							}
+							m_isLeftTriggerDown = !m_isLeftTriggerDown;
+						}
+					}
+
+					//Right trigger
+					bool isRightTriggerInEffect = m_previousGamepad.RightTrigger > TriggerDeadzone;
+					if (gamepad.RightTrigger <= TriggerDeadzone) {   //No trigger
+						if (isRightTriggerInEffect) {
+							if (m_isRightTriggerDown) {
+								foreach (var point in Settings.RightTriggerPositions) {
+									m_inputLibrary.TouchUp(m_posMap[point]);
+								}
+							}
+							m_isRightTriggerDown = false;
+						}
+					}
+					else {
+						if (!isRightTriggerInEffect) {
+							foreach (var point in Settings.RightTriggerPositions) {
+								m_inputLibrary.TouchDown(m_posMap[point], point + windowOffset);
+							}
+							m_isRightTriggerDown = true;
+						}
+						else {
+							if (m_isRightTriggerDown) {
+								foreach (var point in Settings.RightTriggerPositions) {
+									m_inputLibrary.TouchUp(m_posMap[point]);
+								}
+							}
+							else {
+								foreach (var point in Settings.RightTriggerPositions) {
+									m_inputLibrary.TouchDown(m_posMap[point], point + windowOffset);
+								}
+							}
+							m_isRightTriggerDown = !m_isRightTriggerDown;
+						}
 					}
 				}
 				else {
-					if (!isLeftTriggerInEffect) {
-						m_inputLibrary.ButtonDown(InputMapperLibrary.LeftTriggerButtonId, Settings.LeftTriggerPositions, windowPosition);
+					//Left trigger
+					bool isLeftTriggerInEffect = m_previousGamepad.LeftTrigger > TriggerDeadzone;
+					if (gamepad.LeftTrigger <= TriggerDeadzone) {   //No trigger
+						if (isLeftTriggerInEffect) {
+							foreach (var point in Settings.LeftTriggerPositions) {
+								m_inputLibrary.TouchUp(m_posMap[point]);
+							}
+						}
 					}
 					else {
-						m_inputLibrary.ButtonUpdate(InputMapperLibrary.LeftTriggerButtonId, Settings.LeftTriggerPositions, windowPosition);
+						if (!isLeftTriggerInEffect) {
+							foreach (var point in Settings.LeftTriggerPositions) {
+								m_inputLibrary.TouchDown(m_posMap[point], point + windowOffset);
+							}
+						}
+						else {
+							foreach (var point in Settings.LeftTriggerPositions) {
+								m_inputLibrary.TouchUpdate(m_posMap[point], point + windowOffset);
+							}
+						}
 					}
-				}
-				bool isRightTriggerInEffect = m_previousGamepad.RightTrigger > TriggerDeadzone;
-				if (gamepad.RightTrigger <= TriggerDeadzone) {   //No trigger
-					if (isRightTriggerInEffect) {
-						m_inputLibrary.ButtonUp(InputMapperLibrary.RightTriggerButtonId);
-					}
-				}
-				else {
-					if (!isRightTriggerInEffect) {
-						m_inputLibrary.ButtonDown(InputMapperLibrary.RightTriggerButtonId, Settings.RightTriggerPositions, windowPosition);
+
+					//Right trigger
+					bool isRightTriggerInEffect = m_previousGamepad.RightTrigger > TriggerDeadzone;
+					if (gamepad.RightTrigger <= TriggerDeadzone) {   //No trigger
+						if (isRightTriggerInEffect) {
+							foreach (var point in Settings.RightTriggerPositions) {
+								m_inputLibrary.TouchUp(m_posMap[point]);
+							}
+						}
 					}
 					else {
-						m_inputLibrary.ButtonUpdate(InputMapperLibrary.RightTriggerButtonId, Settings.RightTriggerPositions, windowPosition);
+						if (!isRightTriggerInEffect) {
+							foreach (var point in Settings.RightTriggerPositions) {
+								m_inputLibrary.TouchDown(m_posMap[point], point + windowOffset);
+							}
+						}
+						else {
+							foreach (var point in Settings.RightTriggerPositions) {
+								m_inputLibrary.TouchUpdate(m_posMap[point], point + windowOffset);
+							}
+						}
 					}
 				}
 
