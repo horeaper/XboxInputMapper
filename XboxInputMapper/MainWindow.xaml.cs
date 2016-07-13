@@ -16,7 +16,7 @@ namespace XboxInputMapper
 	{
 		internal static ProgramSettings Settings { get; private set; }
 
-		InputMapperLibrary m_inputLibrary;
+		InputMapper m_inputMapper = new InputMapper();
 		IntPtr m_gameWindow = IntPtr.Zero;
 		DispatcherTimer m_timer = new DispatcherTimer();
 		System.Windows.Forms.NotifyIcon m_notifyIcon;
@@ -35,7 +35,7 @@ namespace XboxInputMapper
 			InitializeComponent();
 
 			Settings = ProgramSettings.Load();
-			m_inputLibrary = new InputMapperLibrary(Settings.IsVisualizeTouch);
+			m_inputMapper.SetTouchVisualize(Settings.IsVisualizeTouch);
 			textAppTitle.Text = Settings.ApplicationTitle;
 			checkTouchVisible.IsChecked = Settings.IsVisualizeTouch;
 			checkTriggerHappy.IsChecked = Settings.IsTriggerHappy;
@@ -75,7 +75,7 @@ namespace XboxInputMapper
 			m_isDirectionInEffect = false;
 			m_isLeftTriggerDown = false;
 			m_isRightTriggerDown = false;
-			m_inputLibrary.SetTouchVisualize(Settings.IsVisualizeTouch);
+			m_inputMapper.SetTouchVisualize(Settings.IsVisualizeTouch);
 		}
 
 		private void MainWindow_Initialized(object sender, EventArgs e)
@@ -125,11 +125,6 @@ namespace XboxInputMapper
 			Reset();
 		}
 
-		private void ResetButton_Click(object sender, RoutedEventArgs e)
-		{
-			Reset();
-		}
-
 		private void ProfileButton_Click(object sender, RoutedEventArgs e)
 		{
 			var profileWindow = new TouchProfileWindow();
@@ -176,7 +171,7 @@ namespace XboxInputMapper
 					}
 					if (direction.X == 0 && direction.Y == 0) {	//No direction
 						if (m_isDirectionInEffect) {
-							m_inputLibrary.TouchUp(InputMapperLibrary.MaxTouchCount - 1);
+							m_inputMapper.TouchUp(InputMapper.MaxTouchCount - 1);
 							m_isDirectionInEffect = false;
 						}
 					}
@@ -186,11 +181,11 @@ namespace XboxInputMapper
 
 						var point = new Point(windowOffset.X + center.X + direction.X, windowOffset.Y + center.Y - direction.Y);
 						if (!m_isDirectionInEffect) {
-							m_inputLibrary.TouchDown(InputMapperLibrary.MaxTouchCount - 1, point);
+							m_inputMapper.TouchDown(InputMapper.MaxTouchCount - 1, point);
 							m_isDirectionInEffect = true;
 						}
 						else {
-							m_inputLibrary.TouchUpdate(InputMapperLibrary.MaxTouchCount - 1, point);
+							m_inputMapper.TouchUpdate(InputMapper.MaxTouchCount - 1, point);
 						}
 					}
 				}
@@ -204,19 +199,19 @@ namespace XboxInputMapper
 					if (!gamepad.Buttons.HasFlag(value)) {	//No button
 						if (isButtonInEffect) {
 							foreach (var point in Settings.ButtonPositions[buttonId]) {
-								m_inputLibrary.TouchUp(m_posMap[point]);
+								m_inputMapper.TouchUp(m_posMap[point]);
 							}
 						}
 					}
 					else {
 						if (!isButtonInEffect) {
 							foreach (var point in Settings.ButtonPositions[buttonId]) {
-								m_inputLibrary.TouchDown(m_posMap[point], point + windowOffset);
+								m_inputMapper.TouchDown(m_posMap[point], point + windowOffset);
 							}
 						}
 						else {
 							foreach (var point in Settings.ButtonPositions[buttonId]) {
-								m_inputLibrary.TouchUpdate(m_posMap[point], point + windowOffset);
+								m_inputMapper.TouchUpdate(m_posMap[point], point + windowOffset);
 							}
 						}
 					}
@@ -229,7 +224,7 @@ namespace XboxInputMapper
 						if (isLeftTriggerInEffect) {
 							if (m_isLeftTriggerDown) {
 								foreach (var point in Settings.LeftTriggerPositions) {
-									m_inputLibrary.TouchUp(m_posMap[point]);
+									m_inputMapper.TouchUp(m_posMap[point]);
 								}
 							}
 							m_isLeftTriggerDown = false;
@@ -238,19 +233,19 @@ namespace XboxInputMapper
 					else {
 						if (!isLeftTriggerInEffect) {
 							foreach (var point in Settings.LeftTriggerPositions) {
-								m_inputLibrary.TouchDown(m_posMap[point], point + windowOffset);
+								m_inputMapper.TouchDown(m_posMap[point], point + windowOffset);
 							}
 							m_isLeftTriggerDown = true;
 						}
 						else {
 							if (m_isLeftTriggerDown) {
 								foreach (var point in Settings.LeftTriggerPositions) {
-									m_inputLibrary.TouchUp(m_posMap[point]);
+									m_inputMapper.TouchUp(m_posMap[point]);
 								}
 							}
 							else {
 								foreach (var point in Settings.LeftTriggerPositions) {
-									m_inputLibrary.TouchDown(m_posMap[point], point + windowOffset);
+									m_inputMapper.TouchDown(m_posMap[point], point + windowOffset);
 								}
 							}
 							m_isLeftTriggerDown = !m_isLeftTriggerDown;
@@ -263,7 +258,7 @@ namespace XboxInputMapper
 						if (isRightTriggerInEffect) {
 							if (m_isRightTriggerDown) {
 								foreach (var point in Settings.RightTriggerPositions) {
-									m_inputLibrary.TouchUp(m_posMap[point]);
+									m_inputMapper.TouchUp(m_posMap[point]);
 								}
 							}
 							m_isRightTriggerDown = false;
@@ -272,19 +267,19 @@ namespace XboxInputMapper
 					else {
 						if (!isRightTriggerInEffect) {
 							foreach (var point in Settings.RightTriggerPositions) {
-								m_inputLibrary.TouchDown(m_posMap[point], point + windowOffset);
+								m_inputMapper.TouchDown(m_posMap[point], point + windowOffset);
 							}
 							m_isRightTriggerDown = true;
 						}
 						else {
 							if (m_isRightTriggerDown) {
 								foreach (var point in Settings.RightTriggerPositions) {
-									m_inputLibrary.TouchUp(m_posMap[point]);
+									m_inputMapper.TouchUp(m_posMap[point]);
 								}
 							}
 							else {
 								foreach (var point in Settings.RightTriggerPositions) {
-									m_inputLibrary.TouchDown(m_posMap[point], point + windowOffset);
+									m_inputMapper.TouchDown(m_posMap[point], point + windowOffset);
 								}
 							}
 							m_isRightTriggerDown = !m_isRightTriggerDown;
@@ -297,19 +292,19 @@ namespace XboxInputMapper
 					if (gamepad.LeftTrigger <= TriggerDeadzone) {   //No trigger
 						if (isLeftTriggerInEffect) {
 							foreach (var point in Settings.LeftTriggerPositions) {
-								m_inputLibrary.TouchUp(m_posMap[point]);
+								m_inputMapper.TouchUp(m_posMap[point]);
 							}
 						}
 					}
 					else {
 						if (!isLeftTriggerInEffect) {
 							foreach (var point in Settings.LeftTriggerPositions) {
-								m_inputLibrary.TouchDown(m_posMap[point], point + windowOffset);
+								m_inputMapper.TouchDown(m_posMap[point], point + windowOffset);
 							}
 						}
 						else {
 							foreach (var point in Settings.LeftTriggerPositions) {
-								m_inputLibrary.TouchUpdate(m_posMap[point], point + windowOffset);
+								m_inputMapper.TouchUpdate(m_posMap[point], point + windowOffset);
 							}
 						}
 					}
@@ -319,19 +314,19 @@ namespace XboxInputMapper
 					if (gamepad.RightTrigger <= TriggerDeadzone) {   //No trigger
 						if (isRightTriggerInEffect) {
 							foreach (var point in Settings.RightTriggerPositions) {
-								m_inputLibrary.TouchUp(m_posMap[point]);
+								m_inputMapper.TouchUp(m_posMap[point]);
 							}
 						}
 					}
 					else {
 						if (!isRightTriggerInEffect) {
 							foreach (var point in Settings.RightTriggerPositions) {
-								m_inputLibrary.TouchDown(m_posMap[point], point + windowOffset);
+								m_inputMapper.TouchDown(m_posMap[point], point + windowOffset);
 							}
 						}
 						else {
 							foreach (var point in Settings.RightTriggerPositions) {
-								m_inputLibrary.TouchUpdate(m_posMap[point], point + windowOffset);
+								m_inputMapper.TouchUpdate(m_posMap[point], point + windowOffset);
 							}
 						}
 					}
@@ -343,7 +338,7 @@ namespace XboxInputMapper
 				m_previousGamepad = new XInput.Gamepad();
 			}
 
-			m_inputLibrary.SendTouchData();
+			m_inputMapper.SendTouchData();
 		}
 	}
 }

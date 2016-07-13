@@ -37,6 +37,9 @@
   <PropertyGroup>
     <ApplicationIcon>Program.ico</ApplicationIcon>
   </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Drawing" />
@@ -64,7 +67,9 @@
       <DependentUpon>ButtonControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="Controls\IDisplayControl.cs" />
+    <Compile Include="InputMapper.cs" />
     <Compile Include="Native\Imports.cs" />
+    <Compile Include="Native\TouchInjection.cs" />
     <Compile Include="ProgramSettings.cs" />
     <Compile Include="TouchProfileWindow.xaml.cs">
       <DependentUpon>TouchProfileWindow.xaml</DependentUpon>
@@ -113,6 +118,9 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <None Include="app.manifest">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -123,12 +131,6 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup />
-  <ItemGroup>
-    <ProjectReference Include="..\TouchInputMapper\TouchInputMapper.vcxproj">
-      <Project>{8602a603-890e-4df5-9a4e-ed9486938eaa}</Project>
-      <Name>TouchInputMapper</Name>
-    </ProjectReference>
-  </ItemGroup>
   <ItemGroup>
     <Resource Include="Program.ico" />
   </ItemGroup>
