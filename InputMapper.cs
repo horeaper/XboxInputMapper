@@ -14,15 +14,21 @@ namespace XboxInputMapper
 
 		PointerTouchInfo[] m_contact = new PointerTouchInfo[MaxTouchCount];
 		List<PointerTouchInfo> m_injectArray = new List<PointerTouchInfo>();
+		bool m_isVisualizeTouch;
+		uint m_emptyInputCount;
 
-		public void SetTouchVisualize(bool isVisualizeTouch)
+		public InputMapper()
 		{
-			TouchInjection.InitializeTouchInjection(MaxTouchCount, isVisualizeTouch ? TouchFeedback.Default : TouchFeedback.None);
-
 			for (int cnt = 0; cnt < m_contact.Length; ++cnt) {
 				m_contact[cnt].PointerInfo.PointerType = PointerInputType.Touch;
 				m_contact[cnt].PointerInfo.PointerId = (uint)cnt;
 			}
+		}
+
+		public void SetTouchVisualize(bool isVisualizeTouch)
+		{
+			m_isVisualizeTouch = isVisualizeTouch;
+			TouchInjection.InitializeTouchInjection(MaxTouchCount, isVisualizeTouch ? TouchFeedback.Default : TouchFeedback.None);
 		}
 
 		public void TouchDown(int index, Point point)
@@ -54,12 +60,19 @@ namespace XboxInputMapper
 			}
 
 			if (m_injectArray.Count > 0) {
+				m_emptyInputCount = 0;
 				TouchInjection.InjectTouchInput(m_injectArray.Count, m_injectArray.ToArray());
 
 				for (int cnt = 0; cnt < m_contact.Length; ++cnt) {
 					if (m_contact[cnt].PointerInfo.PointerFlags == PointerFlags.Up) {
 						m_contact[cnt].PointerInfo.PointerFlags = PointerFlags.None;
 					}
+				}
+			}
+			else {
+				++m_emptyInputCount;
+				if (m_emptyInputCount == 60) {
+					SetTouchVisualize(m_isVisualizeTouch);
 				}
 			}
 		}

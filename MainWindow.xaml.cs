@@ -336,6 +336,9 @@ namespace XboxInputMapper
 			}
 			else {
 				m_previousGamepad = new XInput.Gamepad();
+				m_isDirectionInEffect = false;
+				m_isLeftTriggerDown = false;
+				m_isRightTriggerDown = false;
 			}
 
 			m_inputMapper.SendTouchData();
