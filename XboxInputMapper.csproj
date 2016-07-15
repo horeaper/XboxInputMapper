@@ -68,6 +68,7 @@
     </Compile>
     <Compile Include="Controls\IDisplayControl.cs" />
     <Compile Include="InputMapper.cs" />
+    <Compile Include="MainWindow.Icon.cs" />
     <Compile Include="Native\Imports.cs" />
     <Compile Include="Native\TouchInjection.cs" />
     <Compile Include="ProgramSettings.cs" />

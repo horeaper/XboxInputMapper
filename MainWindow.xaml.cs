@@ -19,7 +19,6 @@ namespace XboxInputMapper
 		InputMapper m_inputMapper = new InputMapper();
 		IntPtr m_gameWindow = IntPtr.Zero;
 		DispatcherTimer m_timer = new DispatcherTimer();
-		System.Windows.Forms.NotifyIcon m_notifyIcon;
 
 		const int ThumbDeadzone = short.MaxValue / 2;
 		const int TriggerDeadzone = byte.MaxValue / 4;
@@ -40,16 +39,7 @@ namespace XboxInputMapper
 			checkTouchVisible.IsChecked = Settings.IsVisualizeTouch;
 			checkTriggerHappy.IsChecked = Settings.IsTriggerHappy;
 			RefreshPositionIndex();
-
-			m_notifyIcon = new System.Windows.Forms.NotifyIcon();
-			m_notifyIcon.Icon = Properties.Resources.Program;
-			m_notifyIcon.Visible = false;
-			m_notifyIcon.Text = "Xbox Input Mapper";
-			m_notifyIcon.Click += (sender, e) => {
-				Show();
-				WindowState = WindowState.Normal;
-				m_notifyIcon.Visible = false;
-			};
+			InitializeNotifyIcon();
 		}
 
 		void RefreshPositionIndex()
