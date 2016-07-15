@@ -68,15 +68,20 @@ namespace XboxInputMapper
 			m_inputMapper.SetTouchVisualize(Settings.IsVisualizeTouch);
 		}
 
-		private void MainWindow_Initialized(object sender, EventArgs e)
+		private void MainWindow_Loaded(object sender, RoutedEventArgs e)
 		{
 			m_timer.Tick += timer_Tick;
 			m_timer.Interval = TimeSpan.FromSeconds(1.0 / 60.0);
 			m_timer.Start();
+
+			WindowState = Settings.IsMinimized ? WindowState.Minimized : WindowState.Normal;
+			MainWindow_StateChanged(null, null);
 		}
 
 		private void MainWindow_Closing(object sender, CancelEventArgs e)
 		{
+			Settings.IsMinimized = WindowState == WindowState.Minimized;
+
 		tagRetry:
 			if (!Settings.Save()) {
 				var result = MessageBox.Show(this, "Cannot save program settings. Retry?", "Xbox Input Mapper", MessageBoxButton.YesNo, MessageBoxImage.Exclamation);

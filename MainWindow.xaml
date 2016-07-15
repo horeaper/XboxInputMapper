@@ -5,7 +5,7 @@
 		xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 		mc:Ignorable="d"
 		Title="Xbox Input Mapper" Width="275" Height="200" WindowStartupLocation="CenterScreen" ResizeMode="CanMinimize" FontFamily="Segoe UI" FontSize="12" Icon="Program.ico"
-		Initialized="MainWindow_Initialized" Closing="MainWindow_Closing" StateChanged="MainWindow_StateChanged">
+		Loaded="MainWindow_Loaded" Closing="MainWindow_Closing" StateChanged="MainWindow_StateChanged">
 	<Grid>
 		<Grid.RowDefinitions>
 			<RowDefinition Height="*"/>

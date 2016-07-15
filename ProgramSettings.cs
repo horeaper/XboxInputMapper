@@ -9,6 +9,8 @@ namespace XboxInputMapper
 	[Serializable]
 	class ProgramSettings
 	{
+		public bool IsMinimized = false;
+
 		public string ApplicationTitle = "BlueStacks App Player";
 		public bool IsVisualizeTouch = true;
 		public bool IsTriggerHappy = false;
