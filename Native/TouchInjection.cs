@@ -14,7 +14,7 @@ namespace XboxInputMapper.Native
 		/// <param name="maxCount">The maximum number of touch points to simulate. Must be less than 256!</param>
 		/// <param name="feedbackMode">Specifies the visual feedback mode of the generated touch points</param>
 		/// <returns>true if success</returns>
-		[DllImport("user32.dll", CallingConvention = CallingConvention.StdCall)]
+		[DllImport("user32.dll", CallingConvention = CallingConvention.StdCall, SetLastError = true)]
 		[return: MarshalAs(UnmanagedType.Bool)]
 		public static extern bool InitializeTouchInjection(uint maxCount, TouchFeedback feedbackMode);
 
@@ -24,7 +24,7 @@ namespace XboxInputMapper.Native
 		/// <param name="count">The exact number of entries in the array</param>
 		/// <param name="contacts">The PointerTouchInfo to inject</param>
 		/// <returns>true if success</returns>
-		[DllImport("user32.dll", CallingConvention = CallingConvention.StdCall)]
+		[DllImport("user32.dll", CallingConvention = CallingConvention.StdCall, SetLastError = true)]
 		[return: MarshalAs(UnmanagedType.Bool)]
 		public static extern bool InjectTouchInput(int count, [MarshalAs(UnmanagedType.LPArray)] PointerTouchInfo[] contacts);
 	}
@@ -385,7 +385,7 @@ namespace XboxInputMapper.Native
 		public uint Orientation;
 
 		///<summary>
-		/// Pointer pressure normalized in a range of 0 to 256.
+		/// A pen pressure normalized to a range between 0 and 1024. The default is 0 if the device does not report pressure.
 		///</summary>
 		public uint Pressure;
 	}
