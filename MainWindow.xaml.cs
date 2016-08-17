@@ -26,6 +26,7 @@ namespace XboxInputMapper
 		bool m_isDirectionInEffect;
 		bool m_isLeftTriggerDown;
 		bool m_isRightTriggerDown;
+		bool m_isAxisReversed;
 
 		Dictionary<Point, int> m_posMap = new Dictionary<Point, int>();
 
@@ -155,8 +156,6 @@ namespace XboxInputMapper
 
 				//Axis
 				if (Settings.AxisCenter.HasValue && Settings.AxisRadius > 0) {
-					var center = Settings.AxisCenter.Value;
-
 					var direction = new Vector(state.Gamepad.ThumbLX, state.Gamepad.ThumbLY);
 					if (Math.Abs(direction.X) <= ThumbDeadzone) {
 						direction.X = 0;
@@ -174,7 +173,18 @@ namespace XboxInputMapper
 						direction.Normalize();
 						direction *= Settings.AxisRadius;
 
-						var point = new Point(windowOffset.X + center.X + direction.X, windowOffset.Y + center.Y - direction.Y);
+						if (direction.X > 0) {
+							m_isAxisReversed = false;
+						}
+						else if (direction.X < 0) {
+							m_isAxisReversed = true;
+						}
+						var axisCenter = Settings.AxisCenter.Value;
+						if (m_isAxisReversed) {
+							axisCenter.X += Settings.AxisReverseOffset;
+						}
+
+						var point = new Point(windowOffset.X + axisCenter.X + direction.X, windowOffset.Y + axisCenter.Y - direction.Y);
 						if (!m_isDirectionInEffect) {
 							m_inputMapper.TouchDown(InputMapper.MaxTouchCount - 1, point);
 							m_isDirectionInEffect = true;

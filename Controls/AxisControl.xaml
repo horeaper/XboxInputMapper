@@ -4,18 +4,27 @@
 			 xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
 			 xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
 			 mc:Ignorable="d" 
-			 Width="200" Height="200">
+			 Width="200" Height="200" Loaded="AxisControl_OnLoaded">
 	<UserControl.RenderTransform>
 		<TranslateTransform x:Name="matrixTranslate" X="-100" Y="-100" />
 	</UserControl.RenderTransform>
 	<Grid>
+		<Ellipse x:Name="shapeReverseAxisOut" Stroke="Black" StrokeThickness="3" Fill="#8000FFFF" Opacity="0.5" Margin="-20,0,20,0" Visibility="Collapsed" />
+		<Ellipse x:Name="shapeReverseAxisIn" HorizontalAlignment="Center" VerticalAlignment="Center" Width="20" Height="20" Stroke="White" StrokeThickness="1" Fill="#C0000000" Opacity="0.5" Margin="-20,0,20,0" Visibility="Collapsed" />
+
 		<Ellipse x:Name="shapeBackground" Stroke="Black" StrokeThickness="3" Fill="#8000FFFF">
 			<Ellipse.ContextMenu>
 				<ContextMenu>
 					<StackPanel Orientation="Horizontal">
 						<TextBlock Text="Radius" Margin="0,0,5,0" />
-						<TextBox x:Name="textAxisRadius" Width="50" PreviewTextInput="TextAxisRadius_PreviewTextInput" TextChanged="TextAxisRadius_TextChanged" />
+						<TextBox x:Name="textAxisRadius" Width="50" TextChanged="TextAxisRadius_TextChanged" />
 					</StackPanel>
+					<StackPanel Orientation="Horizontal">
+						<TextBlock Text="Reverse Offset" Margin="0,0,5,0" />
+						<TextBox x:Name="textAxisReverseOffset" Width="50" TextChanged="TextAxisReverseOffset_TextChanged" />
+					</StackPanel>
+					<MenuItem x:Name="menuShowReverseAxis" Header="Show Reverse Axis" IsChecked="False" Click="MenuShowReverseAxis_Click" />
+					<Separator />
 					<MenuItem Header="Remove" Click="MenuRemove_Click" />
 				</ContextMenu>
 			</Ellipse.ContextMenu>

@@ -19,6 +19,7 @@ namespace XboxInputMapper
 
 		public Point? AxisCenter;
 		public int AxisRadius = 120;
+		public int AxisReverseOffset = -8;
 
 		public List<Point>[] ButtonPositions = new List<Point>[Constants.ButtonCount];
 		public List<Point> LeftTriggerPositions = new List<Point>();

@@ -11,11 +11,21 @@ namespace XboxInputMapper.Controls
 		public static readonly SolidColorBrush UnselectedBrush = new SolidColorBrush(Color.FromArgb(128, 0, 255, 255));
 		public static readonly SolidColorBrush SelectedBrush = new SolidColorBrush(Color.FromArgb(192, 0, 192, 192));
 
-		public AxisControl(int radius)
+		public AxisControl()
 		{
 			InitializeComponent();
 			shapeBackground.Fill = UnselectedBrush;
-			textAxisRadius.Text = radius.ToString();
+			textAxisRadius.Text = MainWindow.Settings.AxisRadius.ToString();
+			textAxisReverseOffset.Text = MainWindow.Settings.AxisReverseOffset.ToString();
+		}
+
+		private void AxisControl_OnLoaded(object sender, RoutedEventArgs e)
+		{
+			if (MainWindow.Settings.AxisReverseOffset != 0) {
+				menuShowReverseAxis.IsChecked = true;
+				shapeReverseAxisIn.Visibility = Visibility.Visible;
+				shapeReverseAxisOut.Visibility = Visibility.Visible;
+			}
 		}
 
 		public bool IsSelected
@@ -42,6 +52,16 @@ namespace XboxInputMapper.Controls
 			}
 		}
 
+		public int AxisReverseOffset
+		{
+			get { return (int)shapeReverseAxisIn.Margin.Left; }
+			set
+			{
+				shapeReverseAxisIn.Margin = new Thickness(value, 0, -value, 0);
+				shapeReverseAxisOut.Margin = new Thickness(value, 0, -value, 0);
+			}
+		}
+
 		public event EventHandler RemoveClicked;
 
 		private void MenuRemove_Click(object sender, RoutedEventArgs e)
@@ -49,23 +69,27 @@ namespace XboxInputMapper.Controls
 			RemoveClicked?.Invoke(this, e);
 		}
 
-		private void TextAxisRadius_PreviewTextInput(object sender, TextCompositionEventArgs e)
-		{
-			ushort value;
-			if (!ushort.TryParse(e.Text, out value)) {
-				e.Handled = true;
-			}
-		}
-
-		void TextAxisRadius_TextChanged(object sender, TextChangedEventArgs e)
+		private void TextAxisRadius_TextChanged(object sender, TextChangedEventArgs e)
 		{
 			ushort value;
 			if (ushort.TryParse(textAxisRadius.Text, out value) && value >= 10) {
 				AxisRadius = value;
 			}
-			else {
-				textAxisRadius.Text = "10";
+		}
+
+		private void TextAxisReverseOffset_TextChanged(object sender, TextChangedEventArgs e)
+		{
+			short value;
+			if (short.TryParse(textAxisReverseOffset.Text, out value)) {
+				AxisReverseOffset = value;
 			}
+		}
+
+		private void MenuShowReverseAxis_Click(object sender, RoutedEventArgs e)
+		{
+			menuShowReverseAxis.IsChecked = !menuShowReverseAxis.IsChecked;
+			shapeReverseAxisIn.Visibility = menuShowReverseAxis.IsChecked ? Visibility.Visible : Visibility.Collapsed;
+			shapeReverseAxisOut.Visibility = menuShowReverseAxis.IsChecked ? Visibility.Visible : Visibility.Collapsed;
 		}
 	}
 }

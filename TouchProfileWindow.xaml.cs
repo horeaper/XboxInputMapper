@@ -77,7 +77,7 @@ namespace XboxInputMapper
 
 		void AddAxisControlToCanvas()
 		{
-			m_axisControl = new AxisControl(MainWindow.Settings.AxisRadius);
+			m_axisControl = new AxisControl();
 			m_axisControl.MouseDown += IDisplayControl_MouseDown;
 			m_axisControl.MouseUp += IDisplayControl_MouseUp;
 			m_axisControl.RemoveClicked += AxisControl_RemoveClicked;
@@ -158,6 +158,7 @@ namespace XboxInputMapper
 			if (m_axisControl != null) {
 				MainWindow.Settings.AxisCenter = m_axisControl.Location;
 				MainWindow.Settings.AxisRadius = m_axisControl.AxisRadius;
+				MainWindow.Settings.AxisReverseOffset = m_axisControl.AxisReverseOffset;
 			}
 			for (int index = 0; index < Constants.ButtonCount; ++index) {
 				MainWindow.Settings.ButtonPositions[index].Clear();
