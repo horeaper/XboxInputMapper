@@ -14,6 +14,7 @@ namespace XboxInputMapper
 		ContextMenu m_menu;
 		MenuItem m_menuVisualizeTouch;
 		MenuItem m_menuTriggerHappy;
+		MenuItem m_menuReverseAxis;
 
 		void InitializeNotifyIcon()
 		{
@@ -21,11 +22,13 @@ namespace XboxInputMapper
 			m_menuVisualizeTouch.Click += MenuVisualizeTouch_Click;
 			m_menuTriggerHappy = new MenuItem("Trigger Happy");
 			m_menuTriggerHappy.Click += MenuTriggerHappy_Click;
+			m_menuReverseAxis = new MenuItem("Reverse Axis");
+			m_menuReverseAxis.Click += MenuReverseAxis_Click;
 			var menuExit = new MenuItem("Exit");
 			menuExit.Click += MenuExit_Click;
 
 			m_menu = new ContextMenu();
-			m_menu.MenuItems.AddRange(new[] { m_menuVisualizeTouch, m_menuTriggerHappy, new MenuItem("-"), menuExit });
+			m_menu.MenuItems.AddRange(new[] { m_menuVisualizeTouch, m_menuTriggerHappy, m_menuReverseAxis, new MenuItem("-"), menuExit });
 			m_menu.Popup += ContextMenu_Popup;
 
 			m_notifyIcon = new NotifyIcon();
@@ -40,6 +43,7 @@ namespace XboxInputMapper
 		{
 			m_menuVisualizeTouch.Checked = Settings.IsVisualizeTouch;
 			m_menuTriggerHappy.Checked = Settings.IsTriggerHappy;
+			m_menuReverseAxis.Checked = Settings.IsReverseAxis;
 		}
 
 		private void MenuVisualizeTouch_Click(object sender, EventArgs e)
@@ -50,6 +54,11 @@ namespace XboxInputMapper
 		private void MenuTriggerHappy_Click(object sender, EventArgs e)
 		{
 			checkTriggerHappy.IsChecked = !Settings.IsTriggerHappy;
+		}
+
+		private void MenuReverseAxis_Click(object sender, EventArgs e)
+		{
+			checkReverseAxis.IsChecked = !Settings.IsReverseAxis;
 		}
 
 		private void MenuExit_Click(object sender, EventArgs e)

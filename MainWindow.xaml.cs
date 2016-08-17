@@ -26,7 +26,7 @@ namespace XboxInputMapper
 		bool m_isDirectionInEffect;
 		bool m_isLeftTriggerDown;
 		bool m_isRightTriggerDown;
-		bool m_isAxisReversed;
+		bool m_isShadowAxis;
 
 		Dictionary<Point, int> m_posMap = new Dictionary<Point, int>();
 
@@ -115,10 +115,15 @@ namespace XboxInputMapper
 			Reset();
 		}
 
-		void CheckTriggerHappy_CheckedChanged(object sender, RoutedEventArgs e)
+		private void CheckTriggerHappy_CheckedChanged(object sender, RoutedEventArgs e)
 		{
 			Settings.IsTriggerHappy = checkTriggerHappy.IsChecked == true;
 			Reset();
+		}
+
+		private void CheckReverseAxis_CheckedChanged(object sender, RoutedEventArgs e)
+		{
+			Settings.IsReverseAxis = checkReverseAxis.IsChecked == true;
 		}
 
 		private void ProfileButton_Click(object sender, RoutedEventArgs e)
@@ -147,7 +152,6 @@ namespace XboxInputMapper
 				});
 			}
 
-			//Validate controller
 			XInput.State state;
 			if (XInput.GetState(0, out state) == XInput.ErrorSuccess) {
 				Imports.RECT screenRect;
@@ -163,7 +167,7 @@ namespace XboxInputMapper
 					if (Math.Abs(direction.Y) <= ThumbDeadzone) {
 						direction.Y = 0;
 					}
-					if (direction.X == 0 && direction.Y == 0) {	//No direction
+					if (direction.X == 0 && direction.Y == 0) {    //No direction
 						if (m_isDirectionInEffect) {
 							m_inputMapper.TouchUp(InputMapper.MaxTouchCount - 1);
 							m_isDirectionInEffect = false;
@@ -173,17 +177,25 @@ namespace XboxInputMapper
 						direction.Normalize();
 						direction *= Settings.AxisRadius;
 
-						if (direction.X > 0) {
-							m_isAxisReversed = false;
-						}
-						else if (direction.X < 0) {
-							m_isAxisReversed = true;
-						}
-						var axisCenter = Settings.AxisCenter.Value;
-						if (m_isAxisReversed) {
-							axisCenter.X += Settings.AxisReverseOffset;
+						//Reverse axis
+						if (Settings.IsReverseAxis) {
+							direction.X = -direction.X;
+							direction.Y = -direction.Y;
 						}
 
+						//Shadow axis
+						if (direction.X > 0) {
+							m_isShadowAxis = false;
+						}
+						else if (direction.X < 0) {
+							m_isShadowAxis = true;
+						}
+						var axisCenter = Settings.AxisCenter.Value;
+						if (m_isShadowAxis) {
+							axisCenter.X += Settings.ShadowAxisOffset;
+						}
+
+						//Output
 						var point = new Point(windowOffset.X + axisCenter.X + direction.X, windowOffset.Y + axisCenter.Y - direction.Y);
 						if (!m_isDirectionInEffect) {
 							m_inputMapper.TouchDown(InputMapper.MaxTouchCount - 1, point);
@@ -222,7 +234,7 @@ namespace XboxInputMapper
 					}
 				}
 
-				if (checkTriggerHappy.IsChecked == true) {
+				if (Settings.IsTriggerHappy) {
 					//Left trigger
 					bool isLeftTriggerInEffect = m_previousGamepad.LeftTrigger > TriggerDeadzone;
 					if (gamepad.LeftTrigger <= TriggerDeadzone) {   //No trigger

@@ -16,15 +16,15 @@ namespace XboxInputMapper.Controls
 			InitializeComponent();
 			shapeBackground.Fill = UnselectedBrush;
 			textAxisRadius.Text = MainWindow.Settings.AxisRadius.ToString();
-			textAxisReverseOffset.Text = MainWindow.Settings.AxisReverseOffset.ToString();
+			textShadowAxisOffset.Text = MainWindow.Settings.ShadowAxisOffset.ToString();
 		}
 
 		private void AxisControl_OnLoaded(object sender, RoutedEventArgs e)
 		{
-			if (MainWindow.Settings.AxisReverseOffset != 0) {
-				menuShowReverseAxis.IsChecked = true;
-				shapeReverseAxisIn.Visibility = Visibility.Visible;
-				shapeReverseAxisOut.Visibility = Visibility.Visible;
+			if (MainWindow.Settings.ShadowAxisOffset != 0) {
+				menuShowShadowAxis.IsChecked = true;
+				shapeShadowAxisIn.Visibility = Visibility.Visible;
+				shapeShadowAxisOut.Visibility = Visibility.Visible;
 			}
 		}
 
@@ -52,13 +52,13 @@ namespace XboxInputMapper.Controls
 			}
 		}
 
-		public int AxisReverseOffset
+		public int ShadowAxisOffset
 		{
-			get { return (int)shapeReverseAxisIn.Margin.Left; }
+			get { return (int)shapeShadowAxisIn.Margin.Left; }
 			set
 			{
-				shapeReverseAxisIn.Margin = new Thickness(value, 0, -value, 0);
-				shapeReverseAxisOut.Margin = new Thickness(value, 0, -value, 0);
+				shapeShadowAxisIn.Margin = new Thickness(value, 0, -value, 0);
+				shapeShadowAxisOut.Margin = new Thickness(value, 0, -value, 0);
 			}
 		}
 
@@ -77,19 +77,19 @@ namespace XboxInputMapper.Controls
 			}
 		}
 
-		private void TextAxisReverseOffset_TextChanged(object sender, TextChangedEventArgs e)
+		private void TextShadowAxisOffset_TextChanged(object sender, TextChangedEventArgs e)
 		{
 			short value;
-			if (short.TryParse(textAxisReverseOffset.Text, out value)) {
-				AxisReverseOffset = value;
+			if (short.TryParse(textShadowAxisOffset.Text, out value)) {
+				ShadowAxisOffset = value;
 			}
 		}
 
-		private void MenuShowReverseAxis_Click(object sender, RoutedEventArgs e)
+		private void MenuShowShadowAxis_Click(object sender, RoutedEventArgs e)
 		{
-			menuShowReverseAxis.IsChecked = !menuShowReverseAxis.IsChecked;
-			shapeReverseAxisIn.Visibility = menuShowReverseAxis.IsChecked ? Visibility.Visible : Visibility.Collapsed;
-			shapeReverseAxisOut.Visibility = menuShowReverseAxis.IsChecked ? Visibility.Visible : Visibility.Collapsed;
+			menuShowShadowAxis.IsChecked = !menuShowShadowAxis.IsChecked;
+			shapeShadowAxisIn.Visibility = menuShowShadowAxis.IsChecked ? Visibility.Visible : Visibility.Collapsed;
+			shapeShadowAxisOut.Visibility = menuShowShadowAxis.IsChecked ? Visibility.Visible : Visibility.Collapsed;
 		}
 	}
 }

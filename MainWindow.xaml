@@ -4,7 +4,7 @@
 		xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
 		xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 		mc:Ignorable="d"
-		Title="Xbox Input Mapper" Width="275" Height="200" WindowStartupLocation="CenterScreen" ResizeMode="CanMinimize" FontFamily="Segoe UI" FontSize="12" Icon="Program.ico"
+		Title="Xbox Input Mapper" Width="275" Height="220" WindowStartupLocation="CenterScreen" ResizeMode="CanMinimize" FontFamily="Segoe UI" FontSize="12" Icon="Program.ico"
 		Loaded="MainWindow_Loaded" Closing="MainWindow_Closing" StateChanged="MainWindow_StateChanged">
 	<Grid>
 		<Grid.RowDefinitions>
@@ -16,6 +16,7 @@
 			<TextBox x:Name="textAppTitle" HorizontalAlignment="Stretch" Height="23" Margin="10,2,10,5" Background="Red" VerticalContentAlignment="Center" TextChanged="TextAppTitle_TextChanged" />
 			<CheckBox x:Name="checkTouchVisible" HorizontalAlignment="Left" Margin="10,5,0,3" Content="Visualize Touch" Checked="CheckTouchVisible_CheckedChanged" Unchecked="CheckTouchVisible_CheckedChanged"/>
 			<CheckBox x:Name="checkTriggerHappy" HorizontalAlignment="Left" Margin="10,5,0,3" Content="Trigger Happy" Checked="CheckTriggerHappy_CheckedChanged" Unchecked="CheckTriggerHappy_CheckedChanged"/>
+			<CheckBox x:Name="checkReverseAxis" HorizontalAlignment="Left" Margin="10,5,0,3" Content="Reverse Axis" Checked="CheckReverseAxis_CheckedChanged" Unchecked="CheckReverseAxis_CheckedChanged"/>
 		</StackPanel>
 		<Button Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="10" Width="120" Height="23" Content="Touch Profile" Click="ProfileButton_Click"/>
 	</Grid>

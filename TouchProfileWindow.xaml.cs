@@ -158,7 +158,7 @@ namespace XboxInputMapper
 			if (m_axisControl != null) {
 				MainWindow.Settings.AxisCenter = m_axisControl.Location;
 				MainWindow.Settings.AxisRadius = m_axisControl.AxisRadius;
-				MainWindow.Settings.AxisReverseOffset = m_axisControl.AxisReverseOffset;
+				MainWindow.Settings.ShadowAxisOffset = m_axisControl.ShadowAxisOffset;
 			}
 			for (int index = 0; index < Constants.ButtonCount; ++index) {
 				MainWindow.Settings.ButtonPositions[index].Clear();
