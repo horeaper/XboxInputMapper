@@ -76,6 +76,7 @@
       <DependentUpon>TouchProfileWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Native\XInput.cs" />
+    <Compile Include="TriggerAction.cs" />
     <Page Include="Controls\AxisControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

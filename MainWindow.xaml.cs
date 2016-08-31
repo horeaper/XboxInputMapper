@@ -1,11 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Threading;
 using XboxInputMapper.Native;
-using System.Collections.Generic;
 
 namespace XboxInputMapper
 {
@@ -20,12 +20,13 @@ namespace XboxInputMapper
 		IntPtr m_gameWindow = IntPtr.Zero;
 		DispatcherTimer m_timer = new DispatcherTimer();
 
-		const int ThumbDeadzone = short.MaxValue / 2;
-		const int TriggerDeadzone = byte.MaxValue / 4;
+		const int ThumbDeadzone = short.MaxValue / 4;
+		const int TriggerDeadzone = byte.MaxValue / 2;
 		XInput.Gamepad m_previousGamepad;
 		bool m_isDirectionInEffect;
 		bool m_isLeftTriggerDown;
 		bool m_isRightTriggerDown;
+		int m_rightTriggerFrame;
 		bool m_isShadowAxis;
 
 		Dictionary<Point, int> m_posMap = new Dictionary<Point, int>();
@@ -304,6 +305,7 @@ namespace XboxInputMapper
 					}
 				}
 				else {
+/*
 					//Left trigger
 					bool isLeftTriggerInEffect = m_previousGamepad.LeftTrigger > TriggerDeadzone;
 					if (gamepad.LeftTrigger <= TriggerDeadzone) {   //No trigger
@@ -346,6 +348,36 @@ namespace XboxInputMapper
 								m_inputMapper.TouchUpdate(m_posMap[point], point + windowOffset);
 							}
 						}
+					}
+*/
+					//Right trigger
+					bool isRightTriggerInEffect = m_previousGamepad.RightTrigger > TriggerDeadzone;
+					if (gamepad.RightTrigger <= TriggerDeadzone) {   //No trigger
+						if (isRightTriggerInEffect) {
+							var actionType = TriggerAction.TriangleTripletFrenzy(m_rightTriggerFrame);
+							if (!TriggerAction.IsButtonDown(actionType)) {
+								int buttonId = TriggerAction.GetButtonIndex(actionType);
+								foreach (var point in Settings.ButtonPositions[buttonId]) {
+									m_inputMapper.TouchUp(m_posMap[point]);
+								}
+							}
+							m_rightTriggerFrame = 0;
+						}
+					}
+					else {
+						var actionType = TriggerAction.TriangleTripletFrenzy(m_rightTriggerFrame);
+						int buttonId = TriggerAction.GetButtonIndex(actionType);
+						if (TriggerAction.IsButtonDown(actionType)) {
+							foreach (var point in Settings.ButtonPositions[buttonId]) {
+								m_inputMapper.TouchDown(m_posMap[point], point + windowOffset);
+							}
+						}
+						else {
+							foreach (var point in Settings.ButtonPositions[buttonId]) {
+								m_inputMapper.TouchUp(m_posMap[point]);
+							}
+						}
+						++m_rightTriggerFrame;
 					}
 				}
 
