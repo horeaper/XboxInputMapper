@@ -353,9 +353,9 @@ namespace XboxInputMapper
 					//Right trigger
 					bool isRightTriggerInEffect = m_previousGamepad.RightTrigger > TriggerDeadzone;
 					if (gamepad.RightTrigger <= TriggerDeadzone) {   //No trigger
-						if (isRightTriggerInEffect) {
-							var actionType = TriggerAction.TriangleTripletFrenzy(m_rightTriggerFrame);
-							if (!TriggerAction.IsButtonDown(actionType)) {
+						if (isRightTriggerInEffect && m_rightTriggerFrame > 0) {
+							var actionType = TriggerAction.TriangleTripletFrenzy(m_rightTriggerFrame - 1);
+							if (TriggerAction.IsButtonDown(actionType)) {
 								int buttonId = TriggerAction.GetButtonIndex(actionType);
 								foreach (var point in Settings.ButtonPositions[buttonId]) {
 									m_inputMapper.TouchUp(m_posMap[point]);
@@ -366,13 +366,20 @@ namespace XboxInputMapper
 					}
 					else {
 						var actionType = TriggerAction.TriangleTripletFrenzy(m_rightTriggerFrame);
-						int buttonId = TriggerAction.GetButtonIndex(actionType);
 						if (TriggerAction.IsButtonDown(actionType)) {
+							int buttonId = TriggerAction.GetButtonIndex(actionType);
 							foreach (var point in Settings.ButtonPositions[buttonId]) {
 								m_inputMapper.TouchDown(m_posMap[point], point + windowOffset);
 							}
 						}
-						else {
+						else if (TriggerAction.IsButtonUpdate(actionType)) {
+							int buttonId = TriggerAction.GetButtonIndex(actionType);
+							foreach (var point in Settings.ButtonPositions[buttonId]) {
+								m_inputMapper.TouchUpdate(m_posMap[point], point + windowOffset);
+							}
+						}
+						else if (TriggerAction.IsButtonUp(actionType)){
+							int buttonId = TriggerAction.GetButtonIndex(actionType);
 							foreach (var point in Settings.ButtonPositions[buttonId]) {
 								m_inputMapper.TouchUp(m_posMap[point]);
 							}
